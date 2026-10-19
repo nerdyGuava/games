@@ -223,7 +223,7 @@
     <script>
         /* 
            =============================================================
-           🎀 EDIT YOUR REAL BOARD GAME DATA HERE! 🎀
+           🎀 BOARD GAME DATA 🎀
            =============================================================
         */
         const myBoardGames = [
@@ -239,7 +239,7 @@
             { title: "Genius Square", image: "./imgs/genius square.png" }
         ];
 
-        // ✨ PRELOAD ALL IMAGES INTO BROWSER CACHE ON LOAD ✨
+        // Preload all images into browser memory on boot
         function preloadAllImages() {
             myBoardGames.forEach(game => {
                 const img = new Image();
@@ -247,7 +247,6 @@
             });
         }
 
-        // Cute Web Audio Sound Synthesizer
         class GirlyPopAudio {
             constructor() {
                 this.ctx = null;
@@ -291,7 +290,7 @@
                 this.init();
                 if (!this.ctx) return;
 
-                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                const notes = [523.25, 659.25, 783.99, 1046.50];
                 notes.forEach((freq, i) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -314,9 +313,7 @@
 
         const audio = new GirlyPopAudio();
         let isSpinning = false;
-        const CARD_HEIGHT = window.innerWidth < 768 ? 150 : 180;
 
-        // DOM elements
         const spinBtn = document.getElementById('spin-btn');
         const statusText = document.getElementById('status-text');
         const soundBtn = document.getElementById('sound-btn');
@@ -341,19 +338,22 @@
             `;
         }
 
-        function setupInitialReels() {
-            for (let i = 0; i < 3; i++) {
-                const strip = document.getElementById(`reel-strip-${i}`);
-                const sampleGame = myBoardGames[i % myBoardGames.length];
-                strip.innerHTML = createReelImageHTML(sampleGame);
-                strip.style.transform = 'translateY(0px)';
-                document.getElementById(`label-${i}`).textContent = `✨ ${sampleGame.title}`;
-            }
-        }
-
         function getThreeUniqueGames() {
             const shuffled = [...myBoardGames].sort(() => Math.random() - 0.5);
             return shuffled.slice(0, 3);
+        }
+
+        // ✨ Setup initial reels with 3 RANDOM games on page refresh ✨
+        function setupInitialReels() {
+            const initialGames = getThreeUniqueGames();
+            for (let i = 0; i < 3; i++) {
+                const strip = document.getElementById(`reel-strip-${i}`);
+                const initialGame = initialGames[i];
+                strip.innerHTML = createReelImageHTML(initialGame);
+                strip.style.transition = 'none';
+                strip.style.transform = 'translateY(0px)';
+                document.getElementById(`label-${i}`).textContent = `✨ ${initialGame.title}`;
+            }
         }
 
         function spinReels() {
@@ -372,7 +372,6 @@
 
             const winningGames = getThreeUniqueGames();
             const durations = [1600, 2400, 3200];
-            const activeCardHeight = window.innerWidth < 768 ? 150 : 180;
 
             for (let i = 0; i < 3; i++) {
                 const label = document.getElementById(`label-${i}`);
@@ -382,6 +381,9 @@
 
             winningGames.forEach((winningGame, i) => {
                 const strip = document.getElementById(`reel-strip-${i}`);
+                const reelBox = document.getElementById(`reel-box-${i}`);
+                const cardHeight = reelBox.clientHeight; // Automatically measure exact box height
+
                 const sequence = [];
                 const sequenceLength = 15 + (i * 5);
 
@@ -394,9 +396,9 @@
                 strip.innerHTML = sequence.map(g => createReelImageHTML(g)).join('');
                 strip.style.transition = 'none';
                 strip.style.transform = 'translateY(0px)';
-                strip.offsetHeight;
+                strip.offsetHeight; // Force browser layout recalculation
 
-                const totalShift = (sequence.length - 1) * activeCardHeight;
+                const totalShift = (sequence.length - 1) * cardHeight;
                 const duration = durations[i];
 
                 strip.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.0)`;
@@ -409,6 +411,11 @@
                 setTimeout(() => {
                     clearInterval(tickInterval);
                     audio.playPop();
+
+                    // ✨ Clean snap to winning card only (prevents white blank overflow) ✨
+                    strip.style.transition = 'none';
+                    strip.innerHTML = createReelImageHTML(winningGame);
+                    strip.style.transform = 'translateY(0px)';
 
                     const label = document.getElementById(`label-${i}`);
                     label.textContent = `✨ ${winningGame.title}`;
@@ -441,7 +448,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            preloadAllImages(); // Preloads everything smoothly on boot!
+            preloadAllImages();
             setupInitialReels();
             initEvents();
         });
