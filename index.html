@@ -223,16 +223,16 @@
            =============================================================
         */
         const myBoardGames = [
-            { title: "Ticket to Ride", image: "https://images.unsplash.com/photo-1563941433-b6a0946f79d8?auto=format&fit=crop&w=400&q=80" },
-            { title: "Catan", image: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=400&q=80" },
-            { title: "Wingspan", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80" },
-            { title: "Codenames", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=400&q=80" },
-            { title: "Dixit", image: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80" },
-            { title: "Splendor", image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80" },
-            { title: "Azul", image: "https://images.unsplash.com/photo-1578374173705-969cbe6f2d6b?auto=format&fit=crop&w=400&q=80" },
-            { title: "Pandemic", image: "https://images.unsplash.com/photo-1585504198199-20277593b94f?auto=format&fit=crop&w=400&q=80" },
-            { title: "Carcassonne", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" },
-            { title: "Sushi Go!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" }
+            { title: "Arcade Machine", image: "./imgs/arcade machine.png" },
+            { title: "Backgamon", image: "./imgs/backgamon.png" },
+            { title: "Cards", image: "./imgs/cards.png" },
+            { title: "Cat Fence japan", image: "./imgs/cat fence japan.png" },
+            { title: "Clue", image: "./imgs/clue.png" },
+            { title: "Corgi Pileup", image: "./imgs/corgi pileup.png" },
+            { title: "Dreidel", image: "./imgs/dreidel.png" },
+            { title: "Exploding Kittens", image: "./imgs/exploding kittens.png" },
+            { title: "Exploding Mnions", image: "./imgs/exploding minions.png" },
+            { title: "Genius Square", image: "./imgs/genius square.png" }
         ];
 
         // Cute Web Audio Sound Synthesizer
@@ -291,9 +291,6 @@
                     gain.gain.setValueAtTime(0, this.ctx.currentTime + i * 0.07);
                     gain.gain.setValueAtTime(0.15, this.ctx.currentTime + i * 0.07 + 0.01);
                     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.07 + 0.2);
-
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
 
                     osc.start(this.ctx.currentTime + i * 0.07);
                     osc.stop(this.ctx.currentTime + i * 0.07 + 0.2);
