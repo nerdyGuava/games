@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-pink-50 text-slate-700">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Board Game Slot Machine ✨</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pop: {
+                            pink: '#ffb6c1',
+                            pinkLight: '#fff0f3',
+                            pinkDark: '#ff69b4',
+                            lavender: '#e6e6fa',
+                            lavenderDark: '#b8a1d9',
+                            mint: '#d8f3dc',
+                            mintDark: '#74c69d',
+                            peach: '#ffdab9',
+                            cream: '#fffaf0'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Quicksand', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'pop-soft': '0 10px 25px -5px rgba(255, 105, 180, 0.2), 0 8px 10px -6px rgba(255, 105, 180, 0.1)',
+                        'pop-glow': '0 0 20px rgba(255, 182, 193, 0.8)',
+                        'pop-inner': 'inset 0 2px 8px rgba(0,0,0,0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fff0f3;
+            background-image: radial-gradient(#ffc8dd 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Sparkle float animation */
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(10deg); }
+        }
+        .sparkle-float {
+            animation: float-slow 3s ease-in-out infinite;
+        }
+
+        /* Slot Reel Container Styling */
+        .slot-reel-box {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            background: #ffffff;
+            box-shadow: inset 0 0 15px rgba(255, 182, 193, 0.3), 0 8px 20px rgba(255, 182, 193, 0.2);
+            border: 4px solid #ffb6c1;
+        }
+
+        /* Glass / Shine Overlay */
+        .slot-reel-box::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.5) 0%, 
+                rgba(255, 255, 255, 0) 35%, 
+                rgba(255, 182, 193, 0.08) 50%, 
+                rgba(255, 255, 255, 0.4) 100%);
+            pointer-events: none;
+            border-radius: 1.2rem;
+        }
+
+        .reel-strip {
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+            transition: transform 0.1s linear;
+        }
+
+        .reel-card {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        /* Bouncy Button Effect */
+        .btn-bouncy {
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+        }
+        .btn-bouncy:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-bouncy:active {
+            transform: translateY(2px) scale(0.98);
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col justify-between items-center text-slate-700 pb-10">
+
+    <!-- Navbar / Header -->
+    <header class="w-full max-w-4xl px-4 pt-6 pb-2 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl sparkle-float">💖</span>
+            <h1 class="text-xl md:text-2xl font-black font-display text-pink-600 tracking-wide">
+                GIRLY POP GAME PICKER
+            </h1>
+            <span class="text-2xl sparkle-float" style="animation-delay: 1.5s;">✨</span>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <button id="sound-btn" class="px-3 py-1.5 rounded-full bg-white border-2 border-pink-200 text-pink-500 font-bold text-xs shadow-sm hover:bg-pink-50 transition-colors flex items-center gap-1.5">
+                <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                <span class="hidden sm:inline">Audio</span>
+            </button>
+            <button id="toggle-code-btn" class="px-3 py-1.5 rounded-full bg-purple-100 border-2 border-purple-200 text-purple-600 font-bold text-xs shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1.5">
+                <i class="fa-solid fa-code"></i>
+                <span>View / Copy Code</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="w-full max-w-3xl px-4 flex flex-col items-center gap-6 my-auto">
+
+        <!-- Cute Top Banner -->
+        <div id="status-banner" class="w-full text-center py-3 px-6 rounded-3xl bg-white/90 border-2 border-pink-200 text-pink-600 font-extrabold text-sm md:text-base shadow-pop-soft flex items-center justify-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i>
+            <span id="status-text">Press SPIN to reveal 3 cute board game picks!</span>
+        </div>
+
+        <!-- Slot Machine Deck Frame -->
+        <div class="w-full bg-white/80 backdrop-blur-md p-5 md:p-8 rounded-[2.5rem] border-4 border-pink-200 shadow-pop-soft relative">
+            
+            <!-- Floating Decorative Stars -->
+            <i class="fa-solid fa-star text-yellow-300 text-xl absolute -top-3 -left-3 sparkle-float"></i>
+            <i class="fa-solid fa-heart text-pink-400 text-xl absolute -bottom-3 -right-3 sparkle-float" style="animation-delay: 1s;"></i>
+
+            <!-- 3 Slot Reels Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                
+                <!-- Reel #1 Slot & Badge -->
+                <div class="flex flex-col items-center gap-3">
+                    <div id="reel-box-0" class="slot-reel-box w-full h-[180px]">
+                        <div id="reel-strip-0" class="reel-strip">
+                            <!-- Only Game Images Spin Here -->
+                        </div>
+                    </div>
+                    <!-- Dedicated Title Label Badge -->
+                    <div class="w-full py-2 px-3 bg-pink-100 border-2 border-pink-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
+                        <span id="label-0" class="font-extrabold text-pink-700 text-sm md:text-base truncate">
+                            ✨ Slot #1
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Reel #2 Slot & Badge -->
+                <div class="flex flex-col items-center gap-3">
+                    <div id="reel-box-1" class="slot-reel-box w-full h-[180px]">
+                        <div id="reel-strip-1" class="reel-strip">
+                            <!-- Only Game Images Spin Here -->
+                        </div>
+                    </div>
+                    <!-- Dedicated Title Label Badge -->
+                    <div class="w-full py-2 px-3 bg-purple-100 border-2 border-purple-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
+                        <span id="label-1" class="font-extrabold text-purple-700 text-sm md:text-base truncate">
+                            🌸 Slot #2
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Reel #3 Slot & Badge -->
+                <div class="flex flex-col items-center gap-3">
+                    <div id="reel-box-2" class="slot-reel-box w-full h-[180px]">
+                        <div id="reel-strip-2" class="reel-strip">
+                            <!-- Only Game Images Spin Here -->
+                        </div>
+                    </div>
+                    <!-- Dedicated Title Label Badge -->
+                    <div class="w-full py-2 px-3 bg-emerald-100 border-2 border-emerald-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
+                        <span id="label-2" class="font-extrabold text-emerald-700 text-sm md:text-base truncate">
+                            🎀 Slot #3
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Spin Button -->
+            <div class="mt-8 flex justify-center">
+                <button id="spin-btn" class="btn-bouncy px-10 py-4 rounded-full bg-gradient-to-r from-pink-400 via-pink-500 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black font-display text-2xl tracking-wider shadow-pop-glow flex items-center gap-3 border-4 border-white">
+                    <i class="fa-solid fa-sparkles"></i>
+                    <span>SPIN!</span>
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Code Viewer Drawer / Modal -->
+    <div id="code-drawer" class="w-full max-w-3xl px-4 mt-6 hidden">
+        <div class="bg-slate-900 text-slate-100 rounded-3xl p-5 border-4 border-pink-300 shadow-2xl">
+            <div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
+                <h3 class="font-bold text-pink-300 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> Easily Edit Your Board Game List Below!
+                </h3>
+                <button id="copy-code-btn" class="px-3 py-1 bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs rounded-lg transition-all">
+                    <i class="fa-regular fa-copy"></i> Copy Code
+                </button>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">
+                Below is the standard JavaScript data array. You can replace the titles and image paths with your own real board game photos!
+            </p>
+            <pre class="bg-slate-950 p-4 rounded-2xl overflow-x-auto text-xs text-pink-200 font-mono leading-relaxed border border-slate-800"><code id="code-snippet">const myBoardGames = [
+  { title: "Ticket to Ride", image: "imgs/ticket_to_ride.jpg" },
+  { title: "Catan", image: "imgs/catan.jpg" },
+  { title: "Wingspan", image: "imgs/wingspan.jpg" },
+  { title: "Codenames", image: "imgs/codenames.jpg" },
+  { title: "Dixit", image: "imgs/dixit.jpg" },
+  { title: "Splendor", image: "imgs/splendor.jpg" },
+  { title: "Azul", image: "imgs/azul.jpg" },
+  { title: "Pandemic", image: "imgs/pandemic.jpg" },
+  { title: "Carcassonne", image: "imgs/carcassonne.jpg" },
+  { title: "Sushi Go!", image: "imgs/sushi_go.jpg" }
+];</code></pre>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /* 
+           =============================================================
+           🎀 EDIT YOUR REAL BOARD GAME DATA HERE! 🎀
+           Replace "imgs/filename.jpg" with the real image paths from 
+           your imgs folder!
+           =============================================================
+        */
+        const myBoardGames = [
+            { title: "Ticket to Ride", image: "https://images.unsplash.com/photo-1563941433-b6a0946f79d8?auto=format&fit=crop&w=400&q=80" },
+            { title: "Catan", image: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=400&q=80" },
+            { title: "Wingspan", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80" },
+            { title: "Codenames", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=400&q=80" },
+            { title: "Dixit", image: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80" },
+            { title: "Splendor", image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80" },
+            { title: "Azul", image: "https://images.unsplash.com/photo-1578374173705-969cbe6f2d6b?auto=format&fit=crop&w=400&q=80" },
+            { title: "Pandemic", image: "https://images.unsplash.com/photo-1585504198199-20277593b94f?auto=format&fit=crop&w=400&q=80" },
+            { title: "Carcassonne", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" },
+            { title: "Sushi Go!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        // Cute Web Audio Sound Synthesizer
+        class GirlyPopAudio {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playPop() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400 + Math.random() * 150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(700, this.ctx.currentTime + 0.04);
+
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playChime() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                // Cute high pitched chime notes
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.07);
+
+                    gain.gain.setValueAtTime(0, this.ctx.currentTime + i * 0.07);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime + i * 0.07 + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.07 + 0.2);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(this.ctx.currentTime + i * 0.07);
+                    osc.stop(this.ctx.currentTime + i * 0.07 + 0.2);
+                });
+            }
+        }
+
+        const audio = new GirlyPopAudio();
+        let isSpinning = false;
+        const CARD_HEIGHT = 180; // match reel box height
+
+        // DOM elements
+        const spinBtn = document.getElementById('spin-btn');
+        const statusText = document.getElementById('status-text');
+        const soundBtn = document.getElementById('sound-btn');
+        const soundIcon = document.getElementById('sound-icon');
+        const toggleCodeBtn = document.getElementById('toggle-code-btn');
+        const codeDrawer = document.getElementById('code-drawer');
+        const copyCodeBtn = document.getElementById('copy-code-btn');
+
+        // Fallback placeholder SVG generator if local img doesn't exist yet
+        function getPlaceholderImage(title) {
+            const encodedTitle = encodeURIComponent(title);
+            return `https://placehold.co/300x300/ffb6c1/ffffff?text=${encodedTitle}`;
+        }
+
+        // Render card with ONLY the game image
+        function createReelImageHTML(game) {
+            const fallbackSrc = getPlaceholderImage(game.title);
+            return `
+                <div class="reel-card w-full h-full">
+                    <div class="w-28 h-28 md:w-32 md:h-32 bg-pink-50 border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1 group">
+                        <img src="${game.image}" 
+                             alt="${game.title}" 
+                             onerror="this.onerror=null; this.src='${fallbackSrc}';" 
+                             class="w-full h-full object-cover rounded-xl transition-transform duration-200 group-hover:scale-105">
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize reels
+        function setupInitialReels() {
+            for (let i = 0; i < 3; i++) {
+                const strip = document.getElementById(`reel-strip-${i}`);
+                const sampleGame = myBoardGames[i % myBoardGames.length];
+                strip.innerHTML = createReelImageHTML(sampleGame);
+                strip.style.transform = 'translateY(0px)';
+                
+                // Set initial label
+                document.getElementById(`label-${i}`).textContent = `✨ ${sampleGame.title}`;
+            }
+        }
+
+        // Pick 3 strictly unique games
+        function getThreeUniqueGames() {
+            const shuffled = [...myBoardGames].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 3);
+        }
+
+        // Spin Action
+        function spinReels() {
+            if (isSpinning) return;
+
+            if (myBoardGames.length < 3) {
+                statusText.textContent = "Please add at least 3 games to your list!";
+                return;
+            }
+
+            audio.init();
+            isSpinning = true;
+            spinBtn.disabled = true;
+            spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            statusText.textContent = "💖 Spinning for game night picks... 💖";
+
+            const winningGames = getThreeUniqueGames();
+            const durations = [1600, 2400, 3200]; // Sequential stop timing
+
+            // Clear labels during spin
+            for (let i = 0; i < 3; i++) {
+                const label = document.getElementById(`label-${i}`);
+                label.textContent = "Spinning...";
+                label.classList.add('animate-pulse');
+            }
+
+            winningGames.forEach((winningGame, i) => {
+                const strip = document.getElementById(`reel-strip-${i}`);
+                const sequence = [];
+                const sequenceLength = 15 + i * 5;
+
+                // Build random sequence ending with winning game
+                for (let j = 0; j < sequenceLength; j++) {
+                    const randGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                    sequence.push(randGame);
+                }
+                sequence.push(winningGame);
+
+                // Populate strip HTML with ONLY images
+                strip.innerHTML = sequence.map(g => createReelImageHTML(g)).join('');
+                strip.style.transition = 'none';
+                strip.style.transform = 'translateY(0px)';
+
+                // Trigger reflow
+                strip.offsetHeight;
+
+                // Animate downward movement
+                const totalShift = (sequence.length - 1) * CARD_HEIGHT;
+                const duration = durations[i];
+
+                strip.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.0)`;
+                strip.style.transform = `translateY(-${totalShift}px)`;
+
+                // Play ticks during spin
+                const tickInterval = setInterval(() => {
+                    audio.playPop();
+                }, 100);
+
+                // Stop reel & reveal corresponding title badge
+                setTimeout(() => {
+                    clearInterval(tickInterval);
+                    audio.playPop();
+
+                    // POPULATE THE TITLE BADGE UNDERNEATH!
+                    const label = document.getElementById(`label-${i}`);
+                    label.textContent = `✨ ${winningGame.title}`;
+                    label.classList.remove('animate-pulse');
+
+                    // If last reel stops
+                    if (i === 2) {
+                        isSpinning = false;
+                        spinBtn.disabled = false;
+                        spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        audio.playChime();
+                        statusText.textContent = "🎉 Yay! Here are your 3 unique game options! 🎉";
+                    }
+                }, duration);
+            });
+        }
+
+        // Setup Events
+        function initEvents() {
+            spinBtn.addEventListener('click', spinReels);
+
+            soundBtn.addEventListener('click', () => {
+                audio.enabled = !audio.enabled;
+                if (audio.enabled) {
+                    soundIcon.className = 'fa-solid fa-volume-high';
+                    soundBtn.classList.remove('opacity-50');
+                } else {
+                    soundIcon.className = 'fa-solid fa-volume-xmark';
+                    soundBtn.classList.add('opacity-50');
+                }
+            });
+
+            toggleCodeBtn.addEventListener('click', () => {
+                codeDrawer.classList.toggle('hidden');
+            });
+
+            copyCodeBtn.addEventListener('click', () => {
+                const codeText = document.getElementById('code-snippet').innerText;
+                const textarea = document.createElement('textarea');
+                textarea.value = codeText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                copyCodeBtn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
+                setTimeout(() => {
+                    copyCodeBtn.innerHTML = `<i class="fa-regular fa-copy"></i> Copy Code`;
+                }, 2000);
+            });
+        }
+
+        // Initialize on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            setupInitialReels();
+            initEvents();
+        });
+    </script>
+</body>
+</html>
