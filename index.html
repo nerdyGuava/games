@@ -130,10 +130,7 @@
                 <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 <span class="hidden sm:inline">Audio</span>
             </button>
-            <button id="toggle-code-btn" class="px-3 py-1.5 rounded-full bg-purple-100 border-2 border-purple-200 text-purple-600 font-bold text-xs shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1.5">
-                <i class="fa-solid fa-code"></i>
-                <span>View / Copy Code</span>
-            </button>
+            
         </div>
     </header>
 
@@ -215,35 +212,6 @@
         </div>
 
     </main>
-
-    <!-- Code Viewer Drawer / Modal -->
-    <div id="code-drawer" class="w-full max-w-3xl px-4 mt-6 hidden">
-        <div class="bg-slate-900 text-slate-100 rounded-3xl p-5 border-4 border-pink-300 shadow-2xl">
-            <div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
-                <h3 class="font-bold text-pink-300 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-code"></i> Easily Edit Your Board Game List Below!
-                </h3>
-                <button id="copy-code-btn" class="px-3 py-1 bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs rounded-lg transition-all">
-                    <i class="fa-regular fa-copy"></i> Copy Code
-                </button>
-            </div>
-            <p class="text-xs text-slate-400 mb-3">
-                Below is the standard JavaScript data array. You can replace the titles and image paths with your own real board game photos!
-            </p>
-            <pre class="bg-slate-950 p-4 rounded-2xl overflow-x-auto text-xs text-pink-200 font-mono leading-relaxed border border-slate-800"><code id="code-snippet">const myBoardGames = [
-  { title: "Ticket to Ride", image: "imgs/ticket_to_ride.jpg" },
-  { title: "Catan", image: "imgs/catan.jpg" },
-  { title: "Wingspan", image: "imgs/wingspan.jpg" },
-  { title: "Codenames", image: "imgs/codenames.jpg" },
-  { title: "Dixit", image: "imgs/dixit.jpg" },
-  { title: "Splendor", image: "imgs/splendor.jpg" },
-  { title: "Azul", image: "imgs/azul.jpg" },
-  { title: "Pandemic", image: "imgs/pandemic.jpg" },
-  { title: "Carcassonne", image: "imgs/carcassonne.jpg" },
-  { title: "Sushi Go!", image: "imgs/sushi_go.jpg" }
-];</code></pre>
-        </div>
-    </div>
 
     <!-- JavaScript Application Logic -->
     <script>
@@ -342,9 +310,6 @@
         const statusText = document.getElementById('status-text');
         const soundBtn = document.getElementById('sound-btn');
         const soundIcon = document.getElementById('sound-icon');
-        const toggleCodeBtn = document.getElementById('toggle-code-btn');
-        const codeDrawer = document.getElementById('code-drawer');
-        const copyCodeBtn = document.getElementById('copy-code-btn');
 
         // Fallback placeholder SVG generator if local img doesn't exist yet
         function getPlaceholderImage(title) {
@@ -480,24 +445,6 @@
                 }
             });
 
-            toggleCodeBtn.addEventListener('click', () => {
-                codeDrawer.classList.toggle('hidden');
-            });
-
-            copyCodeBtn.addEventListener('click', () => {
-                const codeText = document.getElementById('code-snippet').innerText;
-                const textarea = document.createElement('textarea');
-                textarea.value = codeText;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-
-                copyCodeBtn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
-                setTimeout(() => {
-                    copyCodeBtn.innerHTML = `<i class="fa-regular fa-copy"></i> Copy Code`;
-                }, 2000);
-            });
         }
 
         // Initialize on Load
