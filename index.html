@@ -64,10 +64,10 @@
         .slot-reel-box {
             position: relative;
             overflow: hidden;
-            border-radius: 1.5rem;
+            border-radius: 1.2rem;
             background: #ffffff;
             box-shadow: inset 0 0 15px rgba(255, 182, 193, 0.3), 0 8px 20px rgba(255, 182, 193, 0.2);
-            border: 4px solid #ffb6c1;
+            border: 3px solid #ffb6c1;
         }
 
         /* Glass / Shine Overlay */
@@ -81,7 +81,7 @@
                 rgba(255, 182, 193, 0.08) 50%, 
                 rgba(255, 255, 255, 0.4) 100%);
             pointer-events: none;
-            border-radius: 1.2rem;
+            border-radius: 1rem;
         }
 
         .reel-strip {
@@ -92,13 +92,20 @@
         }
 
         .reel-card {
-            height: 180px;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
+            padding: 0.25rem;
             box-sizing: border-box;
             flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .reel-card {
+                height: 180px;
+                padding: 0.5rem;
+            }
         }
 
         /* Bouncy Button Effect */
@@ -119,7 +126,7 @@
     <header class="w-full max-w-4xl px-4 pt-6 pb-2 flex items-center justify-between">
         <div class="flex items-center space-x-2">
             <span class="text-2xl sparkle-float">💖</span>
-            <h1 class="text-xl md:text-2xl font-black font-display text-pink-600 tracking-wide">
+            <h1 class="text-lg md:text-2xl font-black font-display text-pink-600 tracking-wide">
                 GIRLY POP GAME PICKER
             </h1>
             <span class="text-2xl sparkle-float" style="animation-delay: 1.5s;">✨</span>
@@ -130,69 +137,68 @@
                 <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 <span class="hidden sm:inline">Audio</span>
             </button>
-            
         </div>
     </header>
 
     <!-- Main Game Container -->
-    <main class="w-full max-w-3xl px-4 flex flex-col items-center gap-6 my-auto">
+    <main class="w-full max-w-3xl px-2 md:px-4 flex flex-col items-center gap-6 my-auto">
 
         <!-- Cute Top Banner -->
-        <div id="status-banner" class="w-full text-center py-3 px-6 rounded-3xl bg-white/90 border-2 border-pink-200 text-pink-600 font-extrabold text-sm md:text-base shadow-pop-soft flex items-center justify-center gap-2">
+        <div id="status-banner" class="w-full text-center py-3 px-4 rounded-3xl bg-white/90 border-2 border-pink-200 text-pink-600 font-extrabold text-xs md:text-base shadow-pop-soft flex items-center justify-center gap-2">
             <i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i>
             <span id="status-text">Press SPIN to reveal 3 cute board game picks!</span>
         </div>
 
         <!-- Slot Machine Deck Frame -->
-        <div class="w-full bg-white/80 backdrop-blur-md p-5 md:p-8 rounded-[2.5rem] border-4 border-pink-200 shadow-pop-soft relative">
+        <div class="w-full bg-white/80 backdrop-blur-md p-3 md:p-8 rounded-[2.5rem] border-4 border-pink-200 shadow-pop-soft relative">
             
             <!-- Floating Decorative Stars -->
             <i class="fa-solid fa-star text-yellow-300 text-xl absolute -top-3 -left-3 sparkle-float"></i>
             <i class="fa-solid fa-heart text-pink-400 text-xl absolute -bottom-3 -right-3 sparkle-float" style="animation-delay: 1s;"></i>
 
-            <!-- 3 Slot Reels Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <!-- 3 Slot Reels Grid (Forced side-by-side on mobile with grid-cols-3) -->
+            <div class="grid grid-cols-3 gap-2 md:gap-6">
                 
                 <!-- Reel #1 Slot & Badge -->
-                <div class="flex flex-col items-center gap-3">
-                    <div id="reel-box-0" class="slot-reel-box w-full h-[180px]">
+                <div class="flex flex-col items-center gap-2 md:gap-3">
+                    <div id="reel-box-0" class="slot-reel-box w-full h-[150px] md:h-[180px]">
                         <div id="reel-strip-0" class="reel-strip">
                             <!-- Only Game Images Spin Here -->
                         </div>
                     </div>
                     <!-- Dedicated Title Label Badge -->
-                    <div class="w-full py-2 px-3 bg-pink-100 border-2 border-pink-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
-                        <span id="label-0" class="font-extrabold text-pink-700 text-sm md:text-base truncate">
+                    <div class="w-full py-1.5 px-1 md:px-3 bg-pink-100 border-2 border-pink-300 rounded-xl md:rounded-2xl text-center shadow-inner min-h-[40px] md:min-h-[46px] flex items-center justify-center">
+                        <span id="label-0" class="font-extrabold text-pink-700 text-xs md:text-base truncate">
                             ✨ Slot #1
                         </span>
                     </div>
                 </div>
 
                 <!-- Reel #2 Slot & Badge -->
-                <div class="flex flex-col items-center gap-3">
-                    <div id="reel-box-1" class="slot-reel-box w-full h-[180px]">
+                <div class="flex flex-col items-center gap-2 md:gap-3">
+                    <div id="reel-box-1" class="slot-reel-box w-full h-[150px] md:h-[180px]">
                         <div id="reel-strip-1" class="reel-strip">
                             <!-- Only Game Images Spin Here -->
                         </div>
                     </div>
                     <!-- Dedicated Title Label Badge -->
-                    <div class="w-full py-2 px-3 bg-purple-100 border-2 border-purple-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
-                        <span id="label-1" class="font-extrabold text-purple-700 text-sm md:text-base truncate">
+                    <div class="w-full py-1.5 px-1 md:px-3 bg-purple-100 border-2 border-purple-300 rounded-xl md:rounded-2xl text-center shadow-inner min-h-[40px] md:min-h-[46px] flex items-center justify-center">
+                        <span id="label-1" class="font-extrabold text-purple-700 text-xs md:text-base truncate">
                             🌸 Slot #2
                         </span>
                     </div>
                 </div>
 
                 <!-- Reel #3 Slot & Badge -->
-                <div class="flex flex-col items-center gap-3">
-                    <div id="reel-box-2" class="slot-reel-box w-full h-[180px]">
+                <div class="flex flex-col items-center gap-2 md:gap-3">
+                    <div id="reel-box-2" class="slot-reel-box w-full h-[150px] md:h-[180px]">
                         <div id="reel-strip-2" class="reel-strip">
                             <!-- Only Game Images Spin Here -->
                         </div>
                     </div>
                     <!-- Dedicated Title Label Badge -->
-                    <div class="w-full py-2 px-3 bg-emerald-100 border-2 border-emerald-300 rounded-2xl text-center shadow-inner min-h-[46px] flex items-center justify-center">
-                        <span id="label-2" class="font-extrabold text-emerald-700 text-sm md:text-base truncate">
+                    <div class="w-full py-1.5 px-1 md:px-3 bg-emerald-100 border-2 border-emerald-300 rounded-xl md:rounded-2xl text-center shadow-inner min-h-[40px] md:min-h-[46px] flex items-center justify-center">
+                        <span id="label-2" class="font-extrabold text-emerald-700 text-xs md:text-base truncate">
                             🎀 Slot #3
                         </span>
                     </div>
@@ -201,8 +207,8 @@
             </div>
 
             <!-- Spin Button -->
-            <div class="mt-8 flex justify-center">
-                <button id="spin-btn" class="btn-bouncy px-10 py-4 rounded-full bg-gradient-to-r from-pink-400 via-pink-500 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black font-display text-2xl tracking-wider shadow-pop-glow flex items-center gap-3 border-4 border-white">
+            <div class="mt-6 md:mt-8 flex justify-center">
+                <button id="spin-btn" class="btn-bouncy px-10 py-4 rounded-full bg-gradient-to-r from-pink-400 via-pink-500 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-black font-display text-xl md:text-2xl tracking-wider shadow-pop-glow flex items-center gap-3 border-4 border-white cursor-pointer">
                     <i class="fa-solid fa-sparkles"></i>
                     <span>SPIN!</span>
                     <i class="fa-solid fa-rotate"></i>
@@ -218,8 +224,6 @@
         /* 
            =============================================================
            🎀 EDIT YOUR REAL BOARD GAME DATA HERE! 🎀
-           Replace "imgs/filename.jpg" with the real image paths from 
-           your imgs folder!
            =============================================================
         */
         const myBoardGames = [
@@ -234,6 +238,14 @@
             { title: "Exploding Mnions", image: "./imgs/exploding minions.png" },
             { title: "Genius Square", image: "./imgs/genius square.png" }
         ];
+
+        // ✨ PRELOAD ALL IMAGES INTO BROWSER CACHE ON LOAD ✨
+        function preloadAllImages() {
+            myBoardGames.forEach(game => {
+                const img = new Image();
+                img.src = game.image;
+            });
+        }
 
         // Cute Web Audio Sound Synthesizer
         class GirlyPopAudio {
@@ -279,7 +291,6 @@
                 this.init();
                 if (!this.ctx) return;
 
-                // Cute high pitched chime notes
                 const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
                 notes.forEach((freq, i) => {
                     const osc = this.ctx.createOscillator();
@@ -292,7 +303,6 @@
                     gain.gain.setValueAtTime(0.15, this.ctx.currentTime + (i * 0.07) + 0.01);
                     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + (i * 0.07) + 0.2);
 
-                    // THESE ARE THE CRITICAL CONNECTION LINES:
                     osc.connect(gain);
                     gain.connect(this.ctx.destination);
 
@@ -304,7 +314,7 @@
 
         const audio = new GirlyPopAudio();
         let isSpinning = false;
-        const CARD_HEIGHT = 180; // match reel box height
+        const CARD_HEIGHT = window.innerWidth < 768 ? 150 : 180;
 
         // DOM elements
         const spinBtn = document.getElementById('spin-btn');
@@ -312,18 +322,16 @@
         const soundBtn = document.getElementById('sound-btn');
         const soundIcon = document.getElementById('sound-icon');
 
-        // Fallback placeholder SVG generator if local img doesn't exist yet
         function getPlaceholderImage(title) {
             const encodedTitle = encodeURIComponent(title);
             return `https://placehold.co/300x300/ffb6c1/ffffff?text=${encodedTitle}`;
         }
 
-        // Render card with ONLY the game image
         function createReelImageHTML(game) {
             const fallbackSrc = getPlaceholderImage(game.title);
             return `
                 <div class="reel-card w-full h-full">
-                    <div class="w-28 h-28 md:w-32 md:h-32 bg-pink-50 border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1 group">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-50 border-3 md:border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1 group">
                         <img src="${game.image}" 
                              alt="${game.title}" 
                              onerror="this.onerror=null; this.src='${fallbackSrc}';" 
@@ -333,26 +341,21 @@
             `;
         }
 
-        // Initialize reels
         function setupInitialReels() {
             for (let i = 0; i < 3; i++) {
                 const strip = document.getElementById(`reel-strip-${i}`);
                 const sampleGame = myBoardGames[i % myBoardGames.length];
                 strip.innerHTML = createReelImageHTML(sampleGame);
                 strip.style.transform = 'translateY(0px)';
-                
-                // Set initial label
                 document.getElementById(`label-${i}`).textContent = `✨ ${sampleGame.title}`;
             }
         }
 
-        // Pick 3 strictly unique games
         function getThreeUniqueGames() {
             const shuffled = [...myBoardGames].sort(() => Math.random() - 0.5);
             return shuffled.slice(0, 3);
         }
 
-        // Spin Action
         function spinReels() {
             if (isSpinning) return;
 
@@ -368,9 +371,9 @@
             statusText.textContent = "💖 Spinning for game night picks... 💖";
 
             const winningGames = getThreeUniqueGames();
-            const durations = [1600, 2400, 3200]; // Sequential stop timing
+            const durations = [1600, 2400, 3200];
+            const activeCardHeight = window.innerWidth < 768 ? 150 : 180;
 
-            // Clear labels during spin
             for (let i = 0; i < 3; i++) {
                 const label = document.getElementById(`label-${i}`);
                 label.textContent = "Spinning...";
@@ -380,46 +383,37 @@
             winningGames.forEach((winningGame, i) => {
                 const strip = document.getElementById(`reel-strip-${i}`);
                 const sequence = [];
-                const sequenceLength = 15 + i * 5;
+                const sequenceLength = 15 + (i * 5);
 
-                // Build random sequence ending with winning game
                 for (let j = 0; j < sequenceLength; j++) {
                     const randGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
                     sequence.push(randGame);
                 }
                 sequence.push(winningGame);
 
-                // Populate strip HTML with ONLY images
                 strip.innerHTML = sequence.map(g => createReelImageHTML(g)).join('');
                 strip.style.transition = 'none';
                 strip.style.transform = 'translateY(0px)';
-
-                // Trigger reflow
                 strip.offsetHeight;
 
-                // Animate downward movement
-                const totalShift = (sequence.length - 1) * CARD_HEIGHT;
+                const totalShift = (sequence.length - 1) * activeCardHeight;
                 const duration = durations[i];
 
                 strip.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.0)`;
                 strip.style.transform = `translateY(-${totalShift}px)`;
 
-                // Play ticks during spin
                 const tickInterval = setInterval(() => {
                     audio.playPop();
                 }, 100);
 
-                // Stop reel & reveal corresponding title badge
                 setTimeout(() => {
                     clearInterval(tickInterval);
                     audio.playPop();
 
-                    // POPULATE THE TITLE BADGE UNDERNEATH!
                     const label = document.getElementById(`label-${i}`);
                     label.textContent = `✨ ${winningGame.title}`;
                     label.classList.remove('animate-pulse');
 
-                    // If last reel stops
                     if (i === 2) {
                         isSpinning = false;
                         spinBtn.disabled = false;
@@ -431,7 +425,6 @@
             });
         }
 
-        // Setup Events
         function initEvents() {
             spinBtn.addEventListener('click', spinReels);
 
@@ -445,11 +438,10 @@
                     soundBtn.classList.add('opacity-50');
                 }
             });
-
         }
 
-        // Initialize on Load
         window.addEventListener('DOMContentLoaded', () => {
+            preloadAllImages(); // Preloads everything smoothly on boot!
             setupInitialReels();
             initEvents();
         });
