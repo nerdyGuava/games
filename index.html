@@ -417,11 +417,18 @@
         }
 
         // Universal Spin Function
-        function executeSpin(customPool = myBoardGames, categoryName = null) {
+        // Universal Spin Function
+        function executeSpin(rawPool = myBoardGames, categoryName = null) {
             if (isSpinning) return;
 
+            // ✨ If a category name is provided, filter out the category header/trigger card itself ✨
+            let customPool = rawPool;
+            if (categoryName) {
+                customPool = rawPool.filter(g => g.title !== categoryName);
+            }
+
             if (customPool.length < 3) {
-                statusText.textContent = `Need at least 3 games in this selection!`;
+                statusText.textContent = `Need at least 3 items in the '${categoryName}' category!`;
                 return;
             }
 
