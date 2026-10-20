@@ -492,7 +492,7 @@
                 executeSpin(coreGamesOnly, null);
             });
 
-            // ✨ Attach the click listener to the ENTIRE column container (box + label) ✨
+            // ✨ Attach click listener with exact string matching ✨
             for (let i = 0; i < 3; i++) {
                 const slotColumn = document.getElementById(`reel-box-${i}`).closest('.flex.flex-col');
                 
@@ -500,16 +500,24 @@
                     if (isSpinning) return;
 
                     const clickedGame = currentWinningGames[i];
-                    if (!clickedGame || !clickedGame.category) {
-                        // Does nothing if the game has no category!
-                        return; 
-                    }
+                    if (!clickedGame) return;
 
-                    // Filter all games matching this category
-                    const categoryPool = myBoardGames.filter(g => g.category === clickedGame.category);
-                    
-                    // Re-spin ALL 3 slots using only this category's values
-                    executeSpin(categoryPool, clickedGame.category);
+                    // Determine target category name: explicit .category property OR exact title
+                    const targetCategory = clickedGame.category ? clickedGame.category : clickedGame.title;
+
+                    // Find all games matching this exact category name
+                    const categoryPool = myBoardGames.filter(g => 
+                        (g.category && g.category === targetCategory) ||
+                        g.title === targetCategory
+                    );
+
+                    // If there are items in this category pool, trigger category spin!
+                    if (categoryPool.length > 1) {
+                        executeSpin(categoryPool, clickedGame.title);
+                    } else {
+                        // Do nothing if it's a regular standalone game with no category match
+                        return;
+                    }
                 });
             }
 
