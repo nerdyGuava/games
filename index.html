@@ -359,15 +359,15 @@
             return `https://placehold.co/300x300/ffb6c1/ffffff?text=${encodedTitle}`;
         }
 
-        function createReelImageHTML(game) {
+        function createSingleCardHTML(game) {
             const fallbackSrc = getPlaceholderImage(game.title);
             return `
-                <div class="reel-card w-full h-full">
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-50 border-3 md:border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1 group">
+                <div class="reel-card w-full h-full flex items-center justify-center p-1">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-50 border-3 md:border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1">
                         <img src="${game.image}" 
                              alt="${game.title}" 
                              onerror="this.onerror=null; this.src='${fallbackSrc}';" 
-                             class="w-full h-full object-cover rounded-xl transition-transform duration-200 group-hover:scale-105">
+                             class="w-full h-full object-cover rounded-xl">
                     </div>
                 </div>
             `;
@@ -378,16 +378,13 @@
             return shuffled.slice(0, 3);
         }
 
-        // ✨ Setup initial reels with 3 RANDOM games on page refresh ✨
+        // Setup initial reels with 3 random games on boot
         function setupInitialReels() {
             const initialGames = getThreeUniqueGames();
             for (let i = 0; i < 3; i++) {
                 const strip = document.getElementById(`reel-strip-${i}`);
-                const initialGame = initialGames[i];
-                strip.innerHTML = createReelImageHTML(initialGame);
-                strip.style.transition = 'none';
-                strip.style.transform = 'translateY(0px)';
-                document.getElementById(`label-${i}`).textContent = `✨ ${initialGame.title}`;
+                strip.innerHTML = createSingleCardHTML(initialGames[i]);
+                document.getElementById(`label-${i}`).textContent = `✨ ${initialGames[i].title}`;
             }
         }
 
@@ -406,7 +403,7 @@
             statusText.textContent = "💖 Spinning for game night picks... 💖";
 
             const winningGames = getThreeUniqueGames();
-            const durations = [1600, 2400, 3200];
+            const durations = [1500, 2300, 3100]; // Individual reel stop times
 
             for (let i = 0; i < 3; i++) {
                 const label = document.getElementById(`label-${i}`);
@@ -416,47 +413,29 @@
 
             winningGames.forEach((winningGame, i) => {
                 const strip = document.getElementById(`reel-strip-${i}`);
-                const reelBox = document.getElementById(`reel-box-${i}`);
-                const cardHeight = reelBox.clientHeight;
-
-                // ✨ Build a long, heavily repeated sequence so it never runs out mid-spin ✨
-                const sequence = [];
-                const rounds = 8; // Repeats your full game list 8 times
-                for (let r = 0; r < rounds; r++) {
-                    const shuffledSubset = [...myBoardGames].sort(() => Math.random() - 0.5);
-                    shuffledSubset.forEach(g => sequence.push(g));
-                }
-                // Ensure the winning game is right at the very end
-                sequence.push(winningGame);
-
-                strip.innerHTML = sequence.map(g => createReelImageHTML(g)).join('');
-                strip.style.transition = 'none';
-                strip.style.transform = 'translateY(0px)';
-                strip.offsetHeight; // Force layout reflow
-
-                const totalShift = (sequence.length - 1) * cardHeight;
+                const startTime = Date.now();
                 const duration = durations[i];
 
-                strip.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.0)`;
-                strip.style.transform = `translateY(-${totalShift}px)`;
-
-                const tickInterval = setInterval(() => {
+                // Rapidly cycle random game images to simulate rolling without lagging mobile memory
+                const spinInterval = setInterval(() => {
+                    const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                    strip.innerHTML = createSingleCardHTML(randomGame);
                     audio.playPop();
-                }, 100);
+                }, 90); // 90ms tick speed for smooth rolling effect
 
+                // Stop the reel at its specific duration and land on the winner
                 setTimeout(() => {
-                    clearInterval(tickInterval);
+                    clearInterval(spinInterval);
+                    
+                    // Land on the definitive unique winner
+                    strip.innerHTML = createSingleCardHTML(winningGame);
                     audio.playPop();
-
-                    // Snap cleanly to the final winning card element
-                    strip.style.transition = 'none';
-                    strip.innerHTML = createReelImageHTML(winningGame);
-                    strip.style.transform = 'translateY(0px)';
 
                     const label = document.getElementById(`label-${i}`);
                     label.textContent = `✨ ${winningGame.title}`;
                     label.classList.remove('animate-pulse');
 
+                    // If it's the last reel finishing
                     if (i === 2) {
                         isSpinning = false;
                         spinBtn.disabled = false;
