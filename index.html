@@ -394,9 +394,10 @@
             return shuffled.slice(0, count);
         }
 
-        // Setup initial reels with 3 random games on boot
+        // Setup initial reels with 3 random CORE games (no categories) on boot
         function setupInitialReels() {
-            const initialGames = getUniqueGamesFromPool(myBoardGames, 3);
+            const coreGames = myBoardGames.filter(g => !g.category);
+            const initialGames = getUniqueGamesFromPool(coreGames, Math.min(3, coreGames.length));
             currentWinningGames = initialGames;
             for (let i = 0; i < 3; i++) {
                 const strip = document.getElementById(`reel-strip-${i}`);
@@ -405,12 +406,12 @@
             }
         }
 
-        // Universal Spin Function (can take a specific game pool like a category)
+        // Universal Spin Function
         function executeSpin(customPool = myBoardGames, categoryName = null) {
             if (isSpinning) return;
 
             if (customPool.length < 3) {
-                statusText.textContent = `Need at least 3 games in the '${categoryName}' category!`;
+                statusText.textContent = `Need at least 3 games in this selection!`;
                 return;
             }
 
@@ -475,8 +476,11 @@
         }
 
         function initEvents() {
-            // Main Spin button spins from the entire collection
-            spinBtn.addEventListener('click', () => executeSpin(myBoardGames, null));
+            // Main Spin button ONLY spins from core games (items without a category)
+            spinBtn.addEventListener('click', () => {
+                const coreGamesOnly = myBoardGames.filter(g => !g.category);
+                executeSpin(coreGamesOnly, null);
+            });
 
             // Clicking any of the 3 final slots checks its category
             for (let i = 0; i < 3; i++) {
