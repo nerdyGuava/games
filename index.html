@@ -499,7 +499,7 @@
                 executeSpin(coreGamesOnly, null);
             });
 
-            // ✨ Attach click listener with exact string matching ✨
+            // ✨ Updated click listener: Only use items that explicitly match the category tag ✨
             for (let i = 0; i < 3; i++) {
                 const slotColumn = document.getElementById(`reel-box-${i}`).closest('.flex.flex-col');
                 
@@ -512,17 +512,17 @@
                     // Determine target category name: explicit .category property OR exact title
                     const targetCategory = clickedGame.category ? clickedGame.category : clickedGame.title;
 
-                    // Find all games matching this exact category name
-                    const categoryPool = myBoardGames.filter(g => 
-                        (g.category && g.category === targetCategory) ||
-                        g.title === targetCategory
-                    );
+                    // Find all games that EXPLICITLY belong to this category (ignoring standalone title cards)
+                    const categoryPool = myBoardGames.filter(g => g.category === targetCategory);
 
                     // If there are items in this category pool, trigger category spin!
-                    if (categoryPool.length > 1) {
-                        executeSpin(categoryPool, clickedGame.title);
+                    if (categoryPool.length >= 3) {
+                        executeSpin(categoryPool, targetCategory);
+                    } else if (categoryPool.length > 0) {
+                        // Fallback if there are fewer than 3 items
+                        executeSpin(categoryPool, targetCategory);
                     } else {
-                        // Do nothing if it's a regular standalone game with no category match
+                        // Do nothing if it's a regular standalone game with no category items
                         return;
                     }
                 });
