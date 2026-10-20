@@ -268,6 +268,8 @@
             { title: "Zombie Kittens", image: "./imgs/zombie kittens.png" }
         ];
 
+        let currentWinningGames = [null, null, null];
+
         // Preload all images into browser memory on boot
         function preloadAllImages() {
             myBoardGames.forEach(game => {
@@ -353,28 +355,38 @@
             return `https://placehold.co/300x300/ffb6c1/ffffff?text=${encodedTitle}`;
         }
 
+        // Render card with category badge if interactive
         function createSingleCardHTML(game) {
             const fallbackSrc = getPlaceholderImage(game.title);
+            const hasCategory = Boolean(game.category);
             return `
-                <div class="reel-card w-full h-full flex items-center justify-center p-1">
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-50 border-3 md:border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1">
+                <div class="reel-card w-full h-full flex items-center justify-center p-1 relative group">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-pink-50 border-3 md:border-4 border-pink-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center p-1 relative ${hasCategory ? 'cursor-pointer hover:border-pink-400 hover:scale-105 transition-all' : ''}">
                         <img src="${game.image}" 
                              alt="${game.title}" 
                              onerror="this.onerror=null; this.src='${fallbackSrc}';" 
                              class="w-full h-full object-cover rounded-xl">
+                        ${hasCategory ? `
+                            <div class="absolute inset-0 bg-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                                <span class="bg-white/90 text-pink-600 font-extrabold text-[9px] md:text-[10px] px-2 py-1 rounded-full shadow-xs flex items-center gap-1 text-center">
+                                    <i class="fa-solid fa-filter text-[8px]"></i> Only ${game.category}
+                                </span>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
         }
 
-        function getThreeUniqueGames() {
-            const shuffled = [...myBoardGames].sort(() => Math.random() - 0.5);
-            return shuffled.slice(0, 3);
+        function getUniqueGamesFromPool(pool, count) {
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, count);
         }
 
         // Setup initial reels with 3 random games on boot
         function setupInitialReels() {
-            const initialGames = getThreeUniqueGames();
+            const initialGames = getUniqueGamesFromPool(myBoardGames, 3);
+            currentWinningGames = initialGames;
             for (let i = 0; i < 3; i++) {
                 const strip = document.getElementById(`reel-strip-${i}`);
                 strip.innerHTML = createSingleCardHTML(initialGames[i]);
@@ -382,11 +394,12 @@
             }
         }
 
-        function spinReels() {
+        // Universal Spin Function (can take a specific game pool like a category)
+        function executeSpin(customPool = myBoardGames, categoryName = null) {
             if (isSpinning) return;
 
-            if (myBoardGames.length < 3) {
-                statusText.textContent = "Please add at least 3 games to your list!";
+            if (customPool.length < 3) {
+                statusText.textContent = `Need at least 3 games in the '${categoryName}' category!`;
                 return;
             }
 
@@ -394,10 +407,11 @@
             isSpinning = true;
             spinBtn.disabled = true;
             spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            statusText.textContent = "💖 Spinning for game night picks... 💖";
+            statusText.textContent = categoryName ? `💖 Spinning only ${categoryName} games! 💖` : "💖 Spinning for game night picks... 💖";
 
-            const winningGames = getThreeUniqueGames();
-            const totalDurations = [1800, 2600, 3400]; // Total spin duration per reel
+            const winningGames = getUniqueGamesFromPool(customPool, 3);
+            currentWinningGames = winningGames;
+            const totalDurations = [1800, 2600, 3400];
 
             for (let i = 0; i < 3; i++) {
                 const label = document.getElementById(`label-${i}`);
@@ -408,32 +422,26 @@
             winningGames.forEach((winningGame, i) => {
                 const strip = document.getElementById(`reel-strip-${i}`);
                 const duration = totalDurations[i];
-                let currentInterval = 60; // Start fast (60ms per tick)
+                let currentInterval = 60;
                 let elapsed = 0;
 
-                // Recursive function that slows down over time (exponential deceleration)
                 function tickReel() {
                     elapsed += currentInterval;
 
                     if (elapsed < duration - 400) {
-                        // Still spinning fast
-                        const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                        const randomGame = customPool[Math.floor(Math.random() * customPool.length)];
                         strip.innerHTML = createSingleCardHTML(randomGame);
                         audio.playPop();
-
-                        // Gradually increase interval time to simulate slowing down
                         currentInterval = Math.min(currentInterval * 1.12, 280);
                         setTimeout(tickReel, currentInterval);
                     } else if (elapsed < duration) {
-                        // Final anticipation slowdown ticks
-                        const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                        const randomGame = customPool[Math.floor(Math.random() * customPool.length)];
                         strip.innerHTML = createSingleCardHTML(randomGame);
                         audio.playPop();
-
-                        currentInterval += 80; // Much slower final ticks
+                        currentInterval += 80;
                         setTimeout(tickReel, currentInterval);
                     } else {
-                        // LAND ON THE WINNER!
+                        // LAND ON WINNER
                         strip.innerHTML = createSingleCardHTML(winningGame);
                         audio.playPop();
 
@@ -441,24 +449,42 @@
                         label.textContent = `✨ ${winningGame.title}`;
                         label.classList.remove('animate-pulse');
 
-                        // If last reel stops
                         if (i === 2) {
                             isSpinning = false;
                             spinBtn.disabled = false;
                             spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                             audio.playChime();
-                            statusText.textContent = "🎉 Yay! Here are your 3 unique game options! 🎉";
+                            statusText.textContent = categoryName ? `🎉 Showing 3 ${categoryName} games! 🎉` : "🎉 Tap any categorized game card to filter all 3 slots! 🎉";
                         }
                     }
                 }
 
-                // Kick off the spinning reel animation
                 tickReel();
             });
         }
 
         function initEvents() {
-            spinBtn.addEventListener('click', spinReels);
+            // Main Spin button spins from the entire collection
+            spinBtn.addEventListener('click', () => executeSpin(myBoardGames, null));
+
+            // Clicking any of the 3 final slots checks its category
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`reel-box-${i}`).addEventListener('click', () => {
+                    if (isSpinning) return;
+
+                    const clickedGame = currentWinningGames[i];
+                    if (!clickedGame || !clickedGame.category) {
+                        // Does nothing if the game has no category!
+                        return; 
+                    }
+
+                    // Filter all games matching this category
+                    const categoryPool = myBoardGames.filter(g => g.category === clickedGame.category);
+                    
+                    // Re-spin ALL 3 slots using only this category's values
+                    executeSpin(categoryPool, clickedGame.category);
+                });
+            }
 
             soundBtn.addEventListener('click', () => {
                 audio.enabled = !audio.enabled;
