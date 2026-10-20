@@ -397,7 +397,7 @@
             statusText.textContent = "💖 Spinning for game night picks... 💖";
 
             const winningGames = getThreeUniqueGames();
-            const durations = [1500, 2300, 3100]; // Individual reel stop times
+            const totalDurations = [1800, 2600, 3400]; // Total spin duration per reel
 
             for (let i = 0; i < 3; i++) {
                 const label = document.getElementById(`label-${i}`);
@@ -407,37 +407,53 @@
 
             winningGames.forEach((winningGame, i) => {
                 const strip = document.getElementById(`reel-strip-${i}`);
-                const startTime = Date.now();
-                const duration = durations[i];
+                const duration = totalDurations[i];
+                let currentInterval = 60; // Start fast (60ms per tick)
+                let elapsed = 0;
 
-                // Rapidly cycle random game images to simulate rolling without lagging mobile memory
-                const spinInterval = setInterval(() => {
-                    const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
-                    strip.innerHTML = createSingleCardHTML(randomGame);
-                    audio.playPop();
-                }, 90); // 90ms tick speed for smooth rolling effect
+                // Recursive function that slows down over time (exponential deceleration)
+                function tickReel() {
+                    elapsed += currentInterval;
 
-                // Stop the reel at its specific duration and land on the winner
-                setTimeout(() => {
-                    clearInterval(spinInterval);
-                    
-                    // Land on the definitive unique winner
-                    strip.innerHTML = createSingleCardHTML(winningGame);
-                    audio.playPop();
+                    if (elapsed < duration - 400) {
+                        // Still spinning fast
+                        const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                        strip.innerHTML = createSingleCardHTML(randomGame);
+                        audio.playPop();
 
-                    const label = document.getElementById(`label-${i}`);
-                    label.textContent = `✨ ${winningGame.title}`;
-                    label.classList.remove('animate-pulse');
+                        // Gradually increase interval time to simulate slowing down
+                        currentInterval = Math.min(currentInterval * 1.12, 280);
+                        setTimeout(tickReel, currentInterval);
+                    } else if (elapsed < duration) {
+                        // Final anticipation slowdown ticks
+                        const randomGame = myBoardGames[Math.floor(Math.random() * myBoardGames.length)];
+                        strip.innerHTML = createSingleCardHTML(randomGame);
+                        audio.playPop();
 
-                    // If it's the last reel finishing
-                    if (i === 2) {
-                        isSpinning = false;
-                        spinBtn.disabled = false;
-                        spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        audio.playChime();
-                        statusText.textContent = "🎉 Yay! Here are your 3 unique game options! 🎉";
+                        currentInterval += 80; // Much slower final ticks
+                        setTimeout(tickReel, currentInterval);
+                    } else {
+                        // LAND ON THE WINNER!
+                        strip.innerHTML = createSingleCardHTML(winningGame);
+                        audio.playPop();
+
+                        const label = document.getElementById(`label-${i}`);
+                        label.textContent = `✨ ${winningGame.title}`;
+                        label.classList.remove('animate-pulse');
+
+                        // If last reel stops
+                        if (i === 2) {
+                            isSpinning = false;
+                            spinBtn.disabled = false;
+                            spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            audio.playChime();
+                            statusText.textContent = "🎉 Yay! Here are your 3 unique game options! 🎉";
+                        }
                     }
-                }, duration);
+                }
+
+                // Kick off the spinning reel animation
+                tickReel();
             });
         }
 
