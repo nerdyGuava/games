@@ -492,9 +492,11 @@
                 executeSpin(coreGamesOnly, null);
             });
 
-            // Clicking any of the 3 final slots checks its category
+            // ✨ Attach the click listener to the ENTIRE column container (box + label) ✨
             for (let i = 0; i < 3; i++) {
-                document.getElementById(`reel-box-${i}`).addEventListener('click', () => {
+                const slotColumn = document.getElementById(`reel-box-${i}`).closest('.flex.flex-col');
+                
+                slotColumn.addEventListener('click', () => {
                     if (isSpinning) return;
 
                     const clickedGame = currentWinningGames[i];
